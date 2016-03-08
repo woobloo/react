@@ -11,6 +11,7 @@
 
 'use strict';
 
+var DisabledInputUtils = require('DisabledInputUtils');
 var LinkedValueUtils = require('LinkedValueUtils');
 var ReactDOMComponentTree = require('ReactDOMComponentTree');
 var ReactUpdates = require('ReactUpdates');
@@ -159,7 +160,7 @@ function updateOptions(inst, multiple, propValue) {
  */
 var ReactDOMSelect = {
   getNativeProps: function(inst, props) {
-    return assign({}, props, {
+    return assign({}, DisabledInputUtils.getNativeProps(inst, props), {
       onChange: inst._wrapperState.onChange,
       value: undefined,
     });
