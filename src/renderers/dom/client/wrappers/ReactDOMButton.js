@@ -18,7 +18,9 @@ var DisabledInputUtils = require('DisabledInputUtils');
  * when `disabled` is set.
  */
 var ReactDOMButton = {
-  getNativeProps: DisabledInputUtils.getNativeProps,
+  getNativeProps: function(inst, props) {
+    return DisabledInputUtils.assignWithNativeProps(props);
+  },
 };
 
 module.exports = ReactDOMButton;

@@ -70,11 +70,11 @@ var ReactDOMInput = {
     var value = LinkedValueUtils.getValue(props);
     var checked = LinkedValueUtils.getChecked(props);
 
-    var nativeProps = assign({
+    var nativeProps = DisabledInputUtils.assignWithNativeProps({
       // Make sure we set .type before any other properties (setting .value
       // before .type means .value is lost in IE11 and below)
       type: undefined,
-    }, DisabledInputUtils.getNativeProps(inst, props), {
+    }, props, {
       defaultChecked: undefined,
       defaultValue: undefined,
       value: value != null ? value : inst._wrapperState.initialValue,
@@ -82,7 +82,7 @@ var ReactDOMInput = {
       onChange: inst._wrapperState.onChange,
     });
 
-    return nativeProps
+    return nativeProps;
   },
 
   mountWrapper: function(inst, props) {

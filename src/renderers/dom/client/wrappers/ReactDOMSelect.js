@@ -160,7 +160,7 @@ function updateOptions(inst, multiple, propValue) {
  */
 var ReactDOMSelect = {
   getNativeProps: function(inst, props) {
-    return assign({}, DisabledInputUtils.getNativeProps(inst, props), {
+    return DisabledInputUtils.assignWithNativeProps(props, {
       onChange: inst._wrapperState.onChange,
       value: undefined,
     });

@@ -16,6 +16,7 @@ describe('DisabledInputUtils', function() {
   var React;
   var ReactDOM;
   var ReactTestUtils;
+  var DisabledInputUtils;
 
   var elements = ['button', 'input', 'select', 'textarea'];
 
@@ -46,6 +47,7 @@ describe('DisabledInputUtils', function() {
         React = require('React');
         ReactDOM = require('ReactDOM');
         ReactTestUtils = require('ReactTestUtils');
+        DisabledInputUtils = require('DisabledInputUtils');
       });
 
       it('should forward clicks when it starts out not disabled', function() {
@@ -103,6 +105,22 @@ describe('DisabledInputUtils', function() {
         );
         expectClickThru(element);
       });
+    });
+  });
+
+  describe('Object allocation', function () {
+    it('returns the same object if only given one object that is not disabled', function() {
+      var props = {};
+
+      expect(DisabledInputUtils.assignWithNativeProps(props)).toEqual(props);
+    });
+
+    it('non-destructively merges', function() {
+      var a = {};
+      var b = { value: true };
+      var props = DisabledInputUtils.assignWithNativeProps(a, b);
+
+      expect('value' in a).toEqual(false);
     });
   });
 });

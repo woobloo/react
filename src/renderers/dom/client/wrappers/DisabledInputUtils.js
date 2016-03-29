@@ -11,6 +11,9 @@
 
 'use strict';
 
+var assign = require('Object.assign');
+var invariant = require('invariant');
+
 var disableableMouseListenerNames = {
   onClick: true,
   onDoubleClick: true,
@@ -30,16 +33,23 @@ var disableableMouseListenerNames = {
  * when `disabled` is set.
  */
 var DisabledInputUtils = {
-  getNativeProps: function(inst, props) {
-    if (!props.disabled) {
-      return props;
+  assignWithNativeProps: function(a,b,c,d,e,f,g) {
+    invariant(!g, 'assignWithNativeProps only accepts 6 arguments');
+
+    if (arguments.length === 1 && !a.disabled) {
+      return a;
     }
 
-    // Copy the props, except the mouse listeners
-    var nativeProps = {};
-    for (var key in props) {
-      if (props.hasOwnProperty(key) && !disableableMouseListenerNames[key]) {
-        nativeProps[key] = props[key];
+    var nativeProps = assign({}, a, b, c, d, e, f);
+
+    if (!nativeProps.disabled) {
+      return nativeProps;
+    }
+
+    // We now know the component is disabled. Eliminate mouse listeners:
+    for (var key in nativeProps) {
+      if (disableableMouseListenerNames[key]) {
+        delete nativeProps[key];
       }
     }
 
