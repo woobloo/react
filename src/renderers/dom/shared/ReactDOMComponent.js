@@ -25,7 +25,6 @@ var EventPluginRegistry = require('EventPluginRegistry');
 var ReactBrowserEventEmitter = require('ReactBrowserEventEmitter');
 var ReactComponentBrowserEnvironment =
   require('ReactComponentBrowserEnvironment');
-var ReactDOMButton = require('ReactDOMButton');
 var ReactDOMComponentFlags = require('ReactDOMComponentFlags');
 var ReactDOMComponentTree = require('ReactDOMComponentTree');
 var ReactDOMInput = require('ReactDOMInput');
@@ -482,9 +481,6 @@ ReactDOMComponent.Mixin = {
         };
         transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
         break;
-      case 'button':
-        props = ReactDOMButton.getNativeProps(this, props, nativeParent);
-        break;
       case 'input':
         ReactDOMInput.mountWrapper(this, props, nativeParent);
         props = ReactDOMInput.getNativeProps(this, props);
@@ -779,10 +775,6 @@ ReactDOMComponent.Mixin = {
     var nextProps = this._currentElement.props;
 
     switch (this._tag) {
-      case 'button':
-        lastProps = ReactDOMButton.getNativeProps(this, lastProps);
-        nextProps = ReactDOMButton.getNativeProps(this, nextProps);
-        break;
       case 'input':
         ReactDOMInput.updateWrapper(this);
         lastProps = ReactDOMInput.getNativeProps(this, lastProps);

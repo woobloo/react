@@ -31,6 +31,7 @@ var emptyFunction = require('emptyFunction');
 var getEventCharCode = require('getEventCharCode');
 var invariant = require('invariant');
 var keyOf = require('keyOf');
+var floatDisabledEvent = require('floatDisabledEvent');
 
 var topLevelTypes = EventConstants.topLevelTypes;
 
@@ -606,7 +607,7 @@ var SimpleEventPlugin = {
     );
     var event = EventConstructor.getPooled(
       dispatchConfig,
-      targetInst,
+      floatDisabledEvent(topLevelType, targetInst),
       nativeEvent,
       nativeEventTarget
     );

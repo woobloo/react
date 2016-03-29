@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-present, Facebook, Inc.
+ * Copyright 2016-present, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -11,8 +11,10 @@
 
 'use strict';
 
+var React = require('React');
+var ReactTestUtils = require('ReactTestUtils');
 
-describe('DisabledInputUtils', function() {
+describe('floatDisabledEvent', function() {
   var React;
   var ReactDOM;
   var ReactTestUtils;
@@ -21,13 +23,13 @@ describe('DisabledInputUtils', function() {
 
   function expectClickThru(element) {
     onClick.mockClear();
-    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(element));
+    ReactTestUtils.SimulateNative.click(ReactDOM.findDOMNode(element));
     expect(onClick.mock.calls.length).toBe(1);
   }
 
   function expectNoClickThru(element) {
     onClick.mockClear();
-    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(element));
+    ReactTestUtils.SimulateNative.click(ReactDOM.findDOMNode(element));
     expect(onClick.mock.calls.length).toBe(0);
   }
 
