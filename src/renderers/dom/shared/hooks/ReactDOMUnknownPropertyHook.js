@@ -18,27 +18,69 @@ var ReactComponentTreeHook = require('ReactComponentTreeHook');
 var warning = require('warning');
 
 if (__DEV__) {
-  var reactProps = {
-    children: true,
-    dangerouslySetInnerHTML: true,
-    key: true,
-    ref: true,
+  var additionalProps = [
+    // Case sensitive properties not included in properties list
+    'acceptCharset',
+    'accessKey',
+    'allowTransparency',
+    'autoCapitalize',
+    'autoComplete',
+    'autoCorrect',
+    'autoFocus',
+    'autoSave',
+    'cellPadding',
+    'cellSpacing',
+    'charSet',
+    'classID',
+    'className',
+    'colSpan',
+    'contentEditable',
+    'contextMenu',
+    'crossOrigin',
+    'dateTime',
+    'encType',
+    'formAction',
+    'formEncType',
+    'formMethod',
+    'formTarget',
+    'frameBorder',
+    'hrefLang',
+    'htmlFor',
+    'httpEquiv',
+    'inputMode',
+    'itemID',
+    'itemProp',
+    'itemRef',
+    'itemType',
+    'keyParams',
+    'keyType',
+    'marginHeight',
+    'marginWidth',
+    'maxLength',
+    'mediaGroup',
+    'minLength',
+    'playsInline',
+    'radioGroup',
+    'referrerPolicy',
+    'spellCheck',
+    'srcDoc',
+    'srcLang',
+    'srcSet',
+    'tabIndex',
+    'useMap',
+  ];
 
-    autoFocus: true,
-    defaultValue: true,
-    defaultChecked: true,
-    innerHTML: true,
-    suppressContentEditableWarning: true,
-    onFocusIn: true,
-    onFocusOut: true,
-  };
+  additionalProps.forEach(function(name) {
+    DOMProperty.getPossibleStandardName[name.toLowerCase()] = name;
+  });
+
   var warnedProperties = {};
 
   var validateProperty = function(tagName, name, debugID) {
-    if (DOMProperty.properties.hasOwnProperty(name) || DOMProperty.isCustomAttribute(name)) {
+    if (DOMProperty.properties.hasOwnProperty(name)) {
       return true;
     }
-    if (reactProps.hasOwnProperty(name) && reactProps[name] ||
+    if (DOMProperty.isReservedProp(name) ||
         warnedProperties.hasOwnProperty(name) && warnedProperties[name]) {
       return true;
     }
@@ -48,14 +90,8 @@ if (__DEV__) {
     warnedProperties[name] = true;
     var lowerCasedName = name.toLowerCase();
 
-    // data-* attributes should be lowercase; suggest the lowercase version
-    var standardName = (
-      DOMProperty.isCustomAttribute(lowerCasedName) ?
-        lowerCasedName :
-      DOMProperty.getPossibleStandardName.hasOwnProperty(lowerCasedName) ?
-        DOMProperty.getPossibleStandardName[lowerCasedName] :
-        null
-    );
+    var standardName = DOMProperty.getPossibleStandardName.hasOwnProperty(name) ?
+        DOMProperty.getPossibleStandardName[name] : null;
 
     var registrationName = (
       EventPluginRegistry.possibleRegistrationNames.hasOwnProperty(
@@ -93,40 +129,6 @@ if (__DEV__) {
   };
 }
 
-var warnUnknownProperties = function(debugID, element) {
-  var unknownProps = [];
-  for (var key in element.props) {
-    var isValid = validateProperty(element.type, key, debugID);
-    if (!isValid) {
-      unknownProps.push(key);
-    }
-  }
-
-  var unknownPropString = unknownProps
-    .map(prop => '`' + prop + '`')
-    .join(', ');
-
-  if (unknownProps.length === 1) {
-    warning(
-      false,
-      'Unknown prop %s on <%s> tag. Remove this prop from the element. ' +
-      'For details, see https://fb.me/react-unknown-prop%s',
-      unknownPropString,
-      element.type,
-      ReactComponentTreeHook.getStackAddendumByID(debugID)
-    );
-  } else if (unknownProps.length > 1) {
-    warning(
-      false,
-      'Unknown props %s on <%s> tag. Remove these props from the element. ' +
-      'For details, see https://fb.me/react-unknown-prop%s',
-      unknownPropString,
-      element.type,
-      ReactComponentTreeHook.getStackAddendumByID(debugID)
-    );
-  }
-};
-
 function handleElement(debugID, element) {
   if (element == null || typeof element.type !== 'string') {
     return;
@@ -134,7 +136,10 @@ function handleElement(debugID, element) {
   if (element.type.indexOf('-') >= 0 || element.props.is) {
     return;
   }
-  warnUnknownProperties(debugID, element);
+
+  for (var key in element.props) {
+    validateProperty(element.type, key, debugID);
+  }
 }
 
 var ReactDOMUnknownPropertyHook = {
