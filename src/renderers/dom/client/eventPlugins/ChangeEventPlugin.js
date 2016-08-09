@@ -149,7 +149,7 @@ if (ExecutionEnvironment.canUseDOM) {
   // IE10+ fire input events to often, such when a placeholder
   // changes or when an input with a placeholder is focused.
   isInputEventSupported = isEventSupported('input') && (
-    !('documentMode' in document) || document.documentMode > 11
+    !('documentMode' in document) || document.documentMode > 10
   );
 }
 
