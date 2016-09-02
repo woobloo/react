@@ -522,31 +522,29 @@ function makeSimulator(eventType) {
     var dispatchConfig =
       EventPluginRegistry.eventNameDispatchConfigs[eventType];
 
+    var instance = ReactDOMComponentTree.getInstanceFromNode(node);
+
+    var topLevelType = 'top' + eventType[0].toUpperCase() + eventType.slice(1)
+
     var fakeNativeEvent = new Event();
     fakeNativeEvent.target = node;
     fakeNativeEvent.type = eventType.toLowerCase();
 
-    // We don't use SyntheticEvent.getPooled in order to not have to worry about
-    // properly destroying any properties assigned from `eventData` upon release
-    var event = new SyntheticEvent(
-      dispatchConfig,
-      ReactDOMComponentTree.getInstanceFromNode(node),
+    var events = EventPluginHub.extractEvents(
+      topLevelType,
+      instance,
       fakeNativeEvent,
       node
-    );
-    // Since we aren't using pooling, always persist the event. This will make
-    // sure it's marked and won't warn when setting additional properties.
-    event.persist();
-    Object.assign(event, eventData);
+    ) || [];
 
-    if (dispatchConfig.phasedRegistrationNames) {
-      EventPropagators.accumulateTwoPhaseDispatches(event);
-    } else {
-      EventPropagators.accumulateDirectDispatches(event);
-    }
+    events.forEach(function(event) {
+      if (event) {
+        Object.assign(event, eventData);
+      }
+    });
 
     ReactUpdates.batchedUpdates(function() {
-      EventPluginHub.enqueueEvents(event);
+      EventPluginHub.enqueueEvents(events);
       EventPluginHub.processEventQueue(true);
     });
   };

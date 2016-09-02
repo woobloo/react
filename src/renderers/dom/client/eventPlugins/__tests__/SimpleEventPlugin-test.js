@@ -21,13 +21,13 @@ describe('SimpleEventPlugin', function() {
 
   function expectClickThru(element) {
     onClick.mockClear();
-    ReactTestUtils.SimulateNative.click(ReactDOM.findDOMNode(element));
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(element));
     expect(onClick.mock.calls.length).toBe(1);
   }
 
   function expectNoClickThru(element) {
     onClick.mockClear();
-    ReactTestUtils.SimulateNative.click(ReactDOM.findDOMNode(element));
+    ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(element));
     expect(onClick.mock.calls.length).toBe(0);
   }
 
@@ -54,7 +54,7 @@ describe('SimpleEventPlugin', function() {
     var child = ReactDOM.findDOMNode(element).firstChild;
 
     onClick.mockClear();
-    ReactTestUtils.SimulateNative.click(child);
+    ReactTestUtils.Simulate.click(child);
     expect(onClick.mock.calls.length).toBe(1);
   });
 
