@@ -12,7 +12,7 @@
 'use strict';
 
 
-describe('DisabledInputUtils', function() {
+describe('SimpleEventPlugin', function() {
   var React;
   var ReactDOM;
   var ReactTestUtils;
