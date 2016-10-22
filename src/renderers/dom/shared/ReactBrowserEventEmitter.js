@@ -148,6 +148,19 @@ var topEventMapping = {
   topWheel: 'wheel',
 };
 
+// Look up a registration name, if doesn't exist, create it and return the
+// dependencies
+function findOrCreateDependencies (registrationName) {
+  var base = registrationName.replace(/^on/, '')
+  var topLevelName = 'top' + base;
+
+  if (topEventMapping[topLevelName] == null) {
+    topEventMapping[topLevelName] = base.toLowerCase();
+  }
+
+  return EventPluginRegistry.registrationNameDependencies[registrationName] || [topLevelName]
+}
+
 /**
  * To ensure no conflicts with other potential React instances on the page
  */
@@ -237,8 +250,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
   listenTo: function(registrationName, contentDocumentHandle) {
     var mountAt = contentDocumentHandle;
     var isListening = getListeningForDocument(mountAt);
-    var dependencies =
-      EventPluginRegistry.registrationNameDependencies[registrationName];
+    var dependencies = findOrCreateDependencies(registrationName);
 
     for (var i = 0; i < dependencies.length; i++) {
       var dependency = dependencies[i];
@@ -315,7 +327,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
           // to make sure blur and focus event listeners are only attached once
           isListening.topBlur = true;
           isListening.topFocus = true;
-        } else if (topEventMapping.hasOwnProperty(dependency)) {
+        } else {
           ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
             dependency,
             topEventMapping[dependency],

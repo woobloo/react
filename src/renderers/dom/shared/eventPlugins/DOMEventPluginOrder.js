@@ -28,6 +28,7 @@ var DOMEventPluginOrder = [
   'ChangeEventPlugin',
   'SelectEventPlugin',
   'BeforeInputEventPlugin',
+  'CustomEventPlugin'
 ];
 
 module.exports = DOMEventPluginOrder;
