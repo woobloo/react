@@ -57,6 +57,7 @@ var topLevelTypes = {
   topLoadedMetadata: null,
   topLoadStart: null,
   topMouseEnter: null,
+  topMouseLeave: null,
   topMouseDown: null,
   topMouseMove: null,
   topMouseOut: null,
