@@ -154,12 +154,9 @@ describe('SimpleEventPlugin', function() {
   });
 
   describe('Custom Events', () => {
-    var React = require('React');
-    var ReactDOM = require('ReactDOM');
-    var ReactTestUtils = require('ReactTestUtils');
 
     it('handles custom events', () => {
-      var callback = jest.fn()
+      var callback = jest.fn();
 
       // Custom events won't trigger unless the container element
       // is attached to the DOM. Why?

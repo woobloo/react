@@ -46,7 +46,6 @@ var Flags = ReactDOMComponentFlags;
 var deleteListener = EventPluginHub.deleteListener;
 var getNode = ReactDOMComponentTree.getNodeFromInstance;
 var listenTo = ReactBrowserEventEmitter.listenTo;
-var registrationNameModules = EventPluginRegistry.registrationNameModules;
 
 // For quickly matching children type, to test if can be treated as content.
 var CONTENT_TYPES = {'string': true, 'number': true};

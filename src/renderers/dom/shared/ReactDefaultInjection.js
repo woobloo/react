@@ -63,7 +63,7 @@ function inject() {
     EnterLeaveEventPlugin: EnterLeaveEventPlugin,
     ChangeEventPlugin: ChangeEventPlugin,
     SelectEventPlugin: SelectEventPlugin,
-    BeforeInputEventPlugin: BeforeInputEventPlugin
+    BeforeInputEventPlugin: BeforeInputEventPlugin,
   });
 
   ReactInjection.HostComponent.injectGenericComponentClass(

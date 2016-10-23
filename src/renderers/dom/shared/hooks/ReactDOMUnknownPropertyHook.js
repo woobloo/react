@@ -231,7 +231,7 @@ if (__DEV__) {
     warnedProperties[name] = true;
 
     var lowerCasedName = name.toLowerCase();
-    var correctEventName = EventPluginRegistry.possibleRegistrationNames[lowerCasedName]
+    var correctEventName = EventPluginRegistry.possibleRegistrationNames[lowerCasedName];
     if (correctEventName !== null && correctEventName === name) {
       return true;
     }

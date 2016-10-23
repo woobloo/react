@@ -27,11 +27,9 @@ var SyntheticUIEvent = require('SyntheticUIEvent');
 var SyntheticWheelEvent = require('SyntheticWheelEvent');
 
 var getEventCharCode = require('getEventCharCode');
-var invariant = require('invariant');
 
 import type {TopLevelTypes} from 'EventConstants';
 import type {
-  DispatchConfig,
   ReactSyntheticEvent,
 } from 'ReactSyntheticEventType';
 import type {ReactInstance} from 'ReactInstanceType';
@@ -42,7 +40,7 @@ import type {
 
 var eventTypes: EventTypes = {};
 
-function findOrCreateDispatchConfig (topLevelType) {
+function findOrCreateDispatchConfig(topLevelType) {
   var eventName = EventPluginRegistry.getEventType(topLevelType);
 
   if (eventTypes[eventName] == null) {
@@ -79,11 +77,11 @@ function shouldPreventMouseEvent(inst) {
   return false;
 }
 
-function eventIsRegisteredByOtherPlugin (topLevelType) {
+function eventIsRegisteredByOtherPlugin(topLevelType) {
   var eventName = EventPluginRegistry.getEventType(topLevelType);
 
   return !eventTypes[eventName] &&
-         EventPluginRegistry.eventNameDispatchConfigs[eventName]
+    EventPluginRegistry.eventNameDispatchConfigs[eventName];
 }
 
 var SimpleEventPlugin: PluginModule<MouseEvent> = {

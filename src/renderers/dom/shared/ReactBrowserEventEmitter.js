@@ -91,15 +91,15 @@ var topEventMapping = {
 
 // Look up a registration name, if doesn't exist, create it and return the
 // dependencies
-function findOrCreateDependencies (registrationName) {
-  var base = registrationName.replace(/^on/, '')
+function findOrCreateDependencies(registrationName) {
+  var base = registrationName.replace(/^on/, '');
   var topLevelName = 'top' + base;
 
   if (topEventMapping[topLevelName] == null) {
     topEventMapping[topLevelName] = base.toLowerCase();
   }
 
-  return EventPluginRegistry.registrationNameDependencies[registrationName] || [topLevelName]
+  return EventPluginRegistry.registrationNameDependencies[registrationName] || [topLevelName];
 }
 
 /**

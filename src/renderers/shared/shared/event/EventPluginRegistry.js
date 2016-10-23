@@ -203,7 +203,7 @@ var EventPluginRegistry = {
   /**
    * Convert a top level event name into a standard event name
    */
-  getEventType: function (topLevelType) {
+  getEventType: function(topLevelType) {
     var base = topLevelType.replace(/^top/, '');
 
     return base[0].toLowerCase() + base.slice(1);
@@ -212,7 +212,7 @@ var EventPluginRegistry = {
   /**
    * Build the phased registration names for a top level event.
    */
-  getPhases: function (topLevelType) {
+  getPhases: function(topLevelType) {
     var base = topLevelType.replace(/^top/, '');
 
     return {
@@ -221,18 +221,18 @@ var EventPluginRegistry = {
     };
   },
 
-  findOrCreateDispatchConfig (topLevelType) {
-    var eventName = EventPluginRegistry.getEventType(topLevelType)
+  findOrCreateDispatchConfig: function (topLevelType) {
+    var eventName = EventPluginRegistry.getEventType(topLevelType);
     var dispatchConfig = EventPluginRegistry.eventNameDispatchConfigs[eventName];
 
     if (dispatchConfig == null) {
       dispatchConfig = {
         phasedRegistrationNames: EventPluginRegistry.getPhases(topLevelType),
-        dependencies: [ topLevelType ],
-      }
+        dependencies: [topLevelType],
+      };
     }
 
-    return dispatchConfig
+    return dispatchConfig;
   },
 
   /**
