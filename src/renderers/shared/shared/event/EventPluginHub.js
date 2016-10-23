@@ -114,7 +114,6 @@ var EventPluginHub = {
       'Expected %s listener to be a function, instead got type %s',
       registrationName, typeof listener
     );
-
     var key = getDictionaryKey(inst);
     var bankForRegistrationName =
       listenerBank[registrationName] || (listenerBank[registrationName] = {});

@@ -137,6 +137,83 @@ if (__DEV__) {
     DOMProperty.getPossibleStandardName[name.toLowerCase()] = name;
   });
 
+  var additionalEvents = [
+    'onAbort',
+    'onAnimationEnd',
+    'onAnimationIteration',
+    'onAnimationStart',
+    'onBlur',
+    'onCanPlay',
+    'onCanPlayThrough',
+    'onClick',
+    'onContextMenu',
+    'onCopy',
+    'onCut',
+    'onDoubleClick',
+    'onDrag',
+    'onDragEnd',
+    'onDragEnter',
+    'onDragExit',
+    'onDragLeave',
+    'onDragOver',
+    'onDragStart',
+    'onDrop',
+    'onDurationChange',
+    'onEmptied',
+    'onEncrypted',
+    'onEnded',
+    'onError',
+    'onFocus',
+    'onInput',
+    'onInvalid',
+    'onKeyDown',
+    'onKeyPress',
+    'onKeyUp',
+    'onLoad',
+    'onLoadedData',
+    'onLoadedMetadata',
+    'onLoadStart',
+    'onMouseDown',
+    'onMouseMove',
+    'onMouseOut',
+    'onMouseOver',
+    'onMouseUp',
+    'onPaste',
+    'onPause',
+    'onPlay',
+    'onPlaying',
+    'onProgress',
+    'onRateChange',
+    'onReset',
+    'onScroll',
+    'onSeeked',
+    'onSeeking',
+    'onStalled',
+    'onSubmit',
+    'onSuspend',
+    'onTimeUpdate',
+    'onTouchCancel',
+    'onTouchEnd',
+    'onTouchMove',
+    'onTouchStart',
+    'onTransitionEnd',
+    'onVolumeChange',
+    'onWaiting',
+    'onWheel',
+    'onBeforeInput',
+    'onChange',
+    'onCompositionEnd',
+    'onCompositionStart',
+    'onCompositionUpdate',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onSelect',
+  ];
+
+  additionalEvents.forEach(function(name) {
+    EventPluginRegistry.possibleRegistrationNames[name.toLowerCase()] = name;
+  });
+
   var warnedProperties = {};
 
   var validateProperty = function(tagName, name, debugID) {
@@ -150,8 +227,14 @@ if (__DEV__) {
     if (EventPluginRegistry.registrationNameModules.hasOwnProperty(name)) {
       return true;
     }
+
     warnedProperties[name] = true;
+
     var lowerCasedName = name.toLowerCase();
+    var correctEventName = EventPluginRegistry.possibleRegistrationNames[lowerCasedName]
+    if (correctEventName !== null && correctEventName === name) {
+      return true;
+    }
 
     var standardName = DOMProperty.getPossibleStandardName.hasOwnProperty(name) ?
         DOMProperty.getPossibleStandardName[name] : null;

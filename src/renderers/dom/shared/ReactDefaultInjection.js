@@ -31,7 +31,6 @@ var ReactReconcileTransaction = require('ReactReconcileTransaction');
 var SVGDOMPropertyConfig = require('SVGDOMPropertyConfig');
 var SelectEventPlugin = require('SelectEventPlugin');
 var SimpleEventPlugin = require('SimpleEventPlugin');
-var CustomEventPlugin = require('CustomEventPlugin');
 
 var alreadyInjected = false;
 
@@ -64,8 +63,7 @@ function inject() {
     EnterLeaveEventPlugin: EnterLeaveEventPlugin,
     ChangeEventPlugin: ChangeEventPlugin,
     SelectEventPlugin: SelectEventPlugin,
-    BeforeInputEventPlugin: BeforeInputEventPlugin,
-    CustomEventPlugin: CustomEventPlugin,
+    BeforeInputEventPlugin: BeforeInputEventPlugin
   });
 
   ReactInjection.HostComponent.injectGenericComponentClass(

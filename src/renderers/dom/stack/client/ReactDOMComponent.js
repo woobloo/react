@@ -755,10 +755,8 @@ ReactDOMComponent.Mixin = {
       }
       var propValue = props[propKey];
 
-      if (registrationNameModules.hasOwnProperty(propKey)) {
-        if (propValue) {
-          enqueuePutListener(this, propKey, propValue, transaction);
-        }
+      if (typeof propValue ==='function') {
+        enqueuePutListener(this, propKey, propValue, transaction);
       } else {
         if (propKey === STYLE) {
           if (propValue) {

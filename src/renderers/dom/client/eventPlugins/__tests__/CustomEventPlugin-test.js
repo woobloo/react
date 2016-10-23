@@ -26,7 +26,7 @@ describe('CustomEventPlugin', () => {
     document.body.appendChild(container);
 
     // Use a custom component to avoid warnings about unknown props
-    var el = ReactDOM.render(<x-button onCustom={callback} />, container);
+    var el = ReactDOM.render(<button onCustom={callback} />, container);
 
     var event = new CustomEvent('custom', { bubbles: true });
 

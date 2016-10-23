@@ -13,6 +13,7 @@
 'use strict';
 
 var EventPropagators = require('EventPropagators');
+var EventPluginRegistry = require('EventPluginRegistry');
 var SyntheticAnimationEvent = require('SyntheticAnimationEvent');
 var SyntheticClipboardEvent = require('SyntheticClipboardEvent');
 var SyntheticEvent = require('SyntheticEvent');
@@ -39,104 +40,27 @@ import type {
   PluginModule,
 } from 'PluginModuleType';
 
-/**
- * Turns
- * ['abort', ...]
- * into
- * eventTypes = {
- *   'abort': {
- *     phasedRegistrationNames: {
- *       bubbled: 'onAbort',
- *       captured: 'onAbortCapture',
- *     },
- *     dependencies: ['topAbort'],
- *   },
- *   ...
- * };
- * topLevelEventsToDispatchConfig = {
- *   'topAbort': { sameConfig }
- * };
- */
 var eventTypes: EventTypes = {};
 var topLevelEventsToDispatchConfig: {[key: TopLevelTypes]: DispatchConfig} = {};
-[
-  'abort',
-  'animationEnd',
-  'animationIteration',
-  'animationStart',
-  'blur',
-  'canPlay',
-  'canPlayThrough',
-  'click',
-  'contextMenu',
-  'copy',
-  'cut',
-  'doubleClick',
-  'drag',
-  'dragEnd',
-  'dragEnter',
-  'dragExit',
-  'dragLeave',
-  'dragOver',
-  'dragStart',
-  'drop',
-  'durationChange',
-  'emptied',
-  'encrypted',
-  'ended',
-  'error',
-  'focus',
-  'input',
-  'invalid',
-  'keyDown',
-  'keyPress',
-  'keyUp',
-  'load',
-  'loadedData',
-  'loadedMetadata',
-  'loadStart',
-  'mouseDown',
-  'mouseMove',
-  'mouseOut',
-  'mouseOver',
-  'mouseUp',
-  'paste',
-  'pause',
-  'play',
-  'playing',
-  'progress',
-  'rateChange',
-  'reset',
-  'scroll',
-  'seeked',
-  'seeking',
-  'stalled',
-  'submit',
-  'suspend',
-  'timeUpdate',
-  'touchCancel',
-  'touchEnd',
-  'touchMove',
-  'touchStart',
-  'transitionEnd',
-  'volumeChange',
-  'waiting',
-  'wheel',
-].forEach(event => {
-  var capitalizedEvent = event[0].toUpperCase() + event.slice(1);
-  var onEvent = 'on' + capitalizedEvent;
-  var topEvent = 'top' + capitalizedEvent;
 
-  var type = {
-    phasedRegistrationNames: {
-      bubbled: onEvent,
-      captured: onEvent + 'Capture',
-    },
-    dependencies: [topEvent],
-  };
-  eventTypes[event] = type;
-  topLevelEventsToDispatchConfig[topEvent] = type;
-});
+function findOrCreateDispatchConfig (topLevelType) {
+  var eventName = EventPluginRegistry.getEventType(topLevelType);
+
+  if (eventTypes[eventName] == null) {
+    var type = EventPluginRegistry.findOrCreateDispatchConfig(topLevelType);
+
+    eventTypes[eventName] = type;
+    topLevelEventsToDispatchConfig[topLevelType] = type;
+  }
+
+  return eventTypes[eventName];
+}
+
+// We need click to greedily "put" click handlers. See didPutListener
+findOrCreateDispatchConfig('topClick');
+
+// We need doubleclick ahead of time for warnings about dblclick
+findOrCreateDispatchConfig('topDoubleClick');
 
 function isInteractive(tag) {
   return (
@@ -157,6 +81,13 @@ function shouldPreventMouseEvent(inst) {
   return false;
 }
 
+function eventIsRegisteredByOtherPlugin (topLevelType) {
+  var eventName = EventPluginRegistry.getEventType(topLevelType);
+
+  return !topLevelEventsToDispatchConfig[topLevelType] &&
+         EventPluginRegistry.eventNameDispatchConfigs[eventName]
+}
+
 var SimpleEventPlugin: PluginModule<MouseEvent> = {
 
   eventTypes: eventTypes,
@@ -167,44 +98,13 @@ var SimpleEventPlugin: PluginModule<MouseEvent> = {
     nativeEvent: MouseEvent,
     nativeEventTarget: EventTarget,
   ): null | ReactSyntheticEvent {
-    var dispatchConfig = topLevelEventsToDispatchConfig[topLevelType];
-    if (!dispatchConfig) {
+    if (eventIsRegisteredByOtherPlugin(topLevelType)) {
       return null;
     }
-    var EventConstructor;
+
+    var EventConstructor = SyntheticEvent;
+
     switch (topLevelType) {
-      case 'topAbort':
-      case 'topCanPlay':
-      case 'topCanPlayThrough':
-      case 'topDurationChange':
-      case 'topEmptied':
-      case 'topEncrypted':
-      case 'topEnded':
-      case 'topError':
-      case 'topInput':
-      case 'topInvalid':
-      case 'topLoad':
-      case 'topLoadedData':
-      case 'topLoadedMetadata':
-      case 'topLoadStart':
-      case 'topPause':
-      case 'topPlay':
-      case 'topPlaying':
-      case 'topProgress':
-      case 'topRateChange':
-      case 'topReset':
-      case 'topSeeked':
-      case 'topSeeking':
-      case 'topStalled':
-      case 'topSubmit':
-      case 'topSuspend':
-      case 'topTimeUpdate':
-      case 'topVolumeChange':
-      case 'topWaiting':
-        // HTML Events
-        // @see http://www.w3.org/TR/html5/index.html#events-0
-        EventConstructor = SyntheticEvent;
-        break;
       case 'topKeyPress':
         // Firefox creates a keypress event for function keys too. This removes
         // the unwanted keypress events. Enter is however both printable and
@@ -278,18 +178,18 @@ var SimpleEventPlugin: PluginModule<MouseEvent> = {
         EventConstructor = SyntheticClipboardEvent;
         break;
     }
-    invariant(
-      EventConstructor,
-      'SimpleEventPlugin: Unhandled event type, `%s`.',
-      topLevelType
-    );
+
+    var dispatchConfig = findOrCreateDispatchConfig(topLevelType);
+
     var event = EventConstructor.getPooled(
       dispatchConfig,
       targetInst,
       nativeEvent,
       nativeEventTarget
     );
+
     EventPropagators.accumulateTwoPhaseDispatches(event);
+
     return event;
   },
 
