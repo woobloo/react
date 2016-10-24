@@ -11,6 +11,7 @@
 
 'use strict';
 
+var EventConstants = require('EventConstants');
 var DOMProperty = require('DOMProperty');
 var EventPluginRegistry = require('EventPluginRegistry');
 var ReactComponentTreeHook = require('ReactComponentTreeHook');
@@ -137,81 +138,12 @@ if (__DEV__) {
     DOMProperty.getPossibleStandardName[name.toLowerCase()] = name;
   });
 
-  var additionalEvents = [
-    'onAbort',
-    'onAnimationEnd',
-    'onAnimationIteration',
-    'onAnimationStart',
-    'onBlur',
-    'onCanPlay',
-    'onCanPlayThrough',
-    'onClick',
-    'onContextMenu',
-    'onCopy',
-    'onCut',
-    'onDoubleClick',
-    'onDrag',
-    'onDragEnd',
-    'onDragEnter',
-    'onDragExit',
-    'onDragLeave',
-    'onDragOver',
-    'onDragStart',
-    'onDrop',
-    'onDurationChange',
-    'onEmptied',
-    'onEncrypted',
-    'onEnded',
-    'onError',
-    'onFocus',
-    'onInput',
-    'onInvalid',
-    'onKeyDown',
-    'onKeyPress',
-    'onKeyUp',
-    'onLoad',
-    'onLoadedData',
-    'onLoadedMetadata',
-    'onLoadStart',
-    'onMouseDown',
-    'onMouseMove',
-    'onMouseOut',
-    'onMouseOver',
-    'onMouseUp',
-    'onPaste',
-    'onPause',
-    'onPlay',
-    'onPlaying',
-    'onProgress',
-    'onRateChange',
-    'onReset',
-    'onScroll',
-    'onSeeked',
-    'onSeeking',
-    'onStalled',
-    'onSubmit',
-    'onSuspend',
-    'onTimeUpdate',
-    'onTouchCancel',
-    'onTouchEnd',
-    'onTouchMove',
-    'onTouchStart',
-    'onTransitionEnd',
-    'onVolumeChange',
-    'onWaiting',
-    'onWheel',
-    'onBeforeInput',
-    'onChange',
-    'onCompositionEnd',
-    'onCompositionStart',
-    'onCompositionUpdate',
-    'onMouseEnter',
-    'onMouseLeave',
-    'onSelect',
-  ];
+  Object.keys(EventConstants.topLevelTypes).forEach(function (topLevelType) {
+    var bubbleName = topLevelType.replace(/^top/, 'on');
+    var captureName = bubbleName + 'Capture';
 
-  additionalEvents.forEach(function(name) {
-    EventPluginRegistry.possibleRegistrationNames[name.toLowerCase()] = name;
+    EventPluginRegistry.possibleRegistrationNames[bubbleName.toLowerCase()] = bubbleName;
+    EventPluginRegistry.possibleRegistrationNames[captureName.toLowerCase()] = captureName;
   });
 
   var warnedProperties = {};
