@@ -210,6 +210,15 @@ var EventPluginRegistry = {
   },
 
   /**
+   * Convert an event type into a top level type
+   */
+  getTopLevelType: function(eventType) {
+    var upper = eventType[0].toUpperCase() + eventType.slice(1);
+
+    return 'top' + upper;
+  },
+
+  /**
    * Build the phased registration names for a top level event.
    */
   getPhases: function(topLevelType) {
@@ -217,11 +226,11 @@ var EventPluginRegistry = {
 
     return {
       bubbled  : 'on' + base,
-      captured : 'on' + base + 'Captured',
+      captured : 'on' + base + 'Capture',
     };
   },
 
-  findOrCreateDispatchConfig: function (topLevelType) {
+  findOrCreateDispatchConfig: function(topLevelType) {
     var eventName = EventPluginRegistry.getEventType(topLevelType);
     var dispatchConfig = EventPluginRegistry.eventNameDispatchConfigs[eventName];
 

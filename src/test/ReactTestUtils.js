@@ -422,10 +422,10 @@ function makeSimulator(topLevelType) {
       node = domComponentOrNode;
     }
 
-    var eventType = EventPluginRegistry.getEventType(topLevelType)
+    var eventType = EventPluginRegistry.getEventType(topLevelType);
 
     var dispatchConfig =
-      EventPluginRegistry.findOrCreateDispatchConfig(topLevelType)
+      EventPluginRegistry.findOrCreateDispatchConfig(topLevelType);
 
     var fakeNativeEvent = new Event();
     fakeNativeEvent.target = node;
@@ -508,7 +508,11 @@ function makeNativeSimulator(eventType) {
 }
 
 function buildSimulators() {
-  ReactTestUtils.Simulate = {};
+  ReactTestUtils.Simulate = function(eventType, domComponentOrNode, nativeEventData) {
+    var topLevelType = EventPluginRegistry.getTopLevelType(eventType);
+
+    return makeSimulator(topLevelType)(domComponentOrNode, nativeEventData);
+  };
 
   var topLevelType;
   for (topLevelType in topLevelTypes) {
