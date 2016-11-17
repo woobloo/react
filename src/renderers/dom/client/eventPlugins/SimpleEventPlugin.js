@@ -158,10 +158,14 @@ function isInteractive(tag) {
 
 function shouldPreventMouseEvent(inst) {
   if (inst) {
-    var disabled = inst._currentElement && inst._currentElement.props.disabled;
+    var focus = inst;
 
-    if (disabled) {
-      return isInteractive(inst._tag);
+    while (focus) {
+      if (focus._currentElement && focus._currentElement.props.disabled) {
+        return isInteractive(focus._tag);
+      }
+
+      focus = focus._hostParent;
     }
   }
 

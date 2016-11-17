@@ -58,6 +58,17 @@ describe('SimpleEventPlugin', function() {
     expect(onClick.mock.calls.length).toBe(1);
   });
 
+  it('clicking a child of a disabled element does not register a click', function() {
+    var element = ReactTestUtils.renderIntoDocument(
+        <button onClick={onClick} disabled><span /></button>
+    );
+    var child = ReactDOM.findDOMNode(element).querySelector('span');
+
+    onClick.mockClear();
+    ReactTestUtils.SimulateNative.click(child);
+    expect(onClick.mock.calls.length).toBe(0);
+  });
+
   ['button', 'input', 'select', 'textarea'].forEach(function(tagName) {
 
     describe(tagName, function() {

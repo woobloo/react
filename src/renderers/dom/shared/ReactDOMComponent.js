@@ -226,8 +226,22 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
   });
 }
 
+var mouseEvents = {
+  onClick: true,
+  onClickCapture: true,
+  onDoubleClick: true,
+  onDoubleClickCapture: true,
+  onMouseDown: true,
+  onMouseDownCapture: true,
+  onMouseMove: true,
+  onMouseMoveCapture: true,
+  onMouseUp: true,
+  onMouseUpCapture: true,
+};
+
 function putListener() {
   var listenerToPut = this;
+
   EventPluginHub.putListener(
     listenerToPut.inst,
     listenerToPut.registrationName,
