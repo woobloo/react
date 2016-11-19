@@ -42,6 +42,10 @@ scripts/shared/__tests__/evalToString-test.js
 * should support string concat (`+`)
 * should throw when it finds other types
 
+src/addons/__tests__/ReactDOMFactories-test.js
+* allow factories to be called without warnings
+* warns once when accessing React.DOM methods
+
 src/isomorphic/__tests__/React-test.js
 * should log a deprecation warning once when using React.createMixin
 * should warn once when attempting to access React.createClass
@@ -141,12 +145,6 @@ src/isomorphic/classic/element/__tests__/ReactElement-test.js
 * throws when adding a prop (in dev) after element creation
 * does not warn for NaN props
 * identifies elements, but not JSON, if Symbols are supported
-* should scry children but cannot
-* does not maintain refs
-* can capture Child instantiation calls
-* can properly scry children
-* does not maintain refs
-* can capture Child instantiation calls
 * should scry children but cannot
 * does not maintain refs
 * can capture Child instantiation calls
@@ -835,7 +833,6 @@ src/renderers/dom/shared/__tests__/ReactDOM-test.js
 * should allow children to be passed as an argument
 * should overwrite props.children with children argument
 * should purge the DOM cache when removing nodes
-* allow React.DOM factories to be called without warnings
 * throws in render() if the mount callback is not a function
 * throws in render() if the update callback is not a function
 * preserves focus
@@ -911,7 +908,6 @@ src/renderers/dom/shared/__tests__/ReactDOMComponent-test.js
 * should warn about contentEditable and children
 * should validate against invalid styles
 * should report component containing invalid styles
-* should properly escape text content and attributes values
 * unmounts children before unsetting DOM node info
 * should throw when an invalid tag name is used server-side
 * should throw when an attack vector is used server-side

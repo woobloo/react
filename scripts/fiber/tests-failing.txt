@@ -1,7 +1,16 @@
 src/isomorphic/classic/__tests__/ReactContextValidator-test.js
 * should pass previous context to lifecycles
 
+src/isomorphic/classic/element/__tests__/ReactElement-test.js
+* can properly scry children
+* does not maintain refs
+* can capture Child instantiation calls
+* should scry children but cannot
+* does not maintain refs
+* can capture Child instantiation calls
+
 src/renderers/dom/shared/__tests__/ReactDOMComponent-test.js
+* should properly escape text content and attributes values
 * gives source code refs for unknown prop warning (ssr)
 * gives source code refs for unknown prop warning for exact elements (ssr)
 * gives source code refs for unknown prop warning for exact elements in composition (ssr)

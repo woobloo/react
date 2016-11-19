@@ -1193,7 +1193,7 @@ describe('ReactDOMComponent', () => {
     it('should properly escape text content and attributes values', () => {
       expect(
         ReactDOMServer.renderToStaticMarkup(
-          React.DOM.div(
+          React.createElement(
             {
               title: '\'"<>&',
               style: {
