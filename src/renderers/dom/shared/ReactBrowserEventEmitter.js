@@ -77,6 +77,39 @@ var {topLevelTypes} = require('BrowserEventConstants');
 var alreadyListeningTo = {};
 var reactTopListenersCounter = 0;
 
+var localOnly = {
+  topAbort: true,
+  topCanPlay: true,
+  topCanPlayThrough: true,
+  topDurationChange: true,
+  topEmptied: true,
+  topEncrypted: true,
+  topEnded: true,
+  topError: true,
+  topInvalid: true,
+  topLoad: true,
+  topLoadedData: true,
+  topLoadedMetadata: true,
+  topLoadStart: true,
+  topPause: true,
+  topPlay: true,
+  topPlaying: true,
+  topProgress: true,
+  topRateChange: true,
+  topReset: true,
+  topSeeked: true,
+  topSeeking: true,
+  topStalled: true,
+  topSubmit: true,
+  topSuspend: true,
+  topTimeUpdate: true,
+  topToggle: true,
+  topVolumeChange: true,
+  topWaiting: true,
+  topTouchMove: true,
+  topTouchStart: true,
+};
+
 /**
  * To ensure no conflicts with other potential React instances on the page
  */
@@ -132,7 +165,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
    * @param {string} registrationName Name of listener (e.g. `onClick`).
    * @param {object} contentDocumentHandle Document which owns the container
    */
-  listenTo: function(registrationName, contentDocumentHandle) {
+  listenTo: function(registrationName, contentDocumentHandle, node) {
     var mountAt = contentDocumentHandle;
     var isListening = getListeningForDocument(mountAt);
     var dependencies =
@@ -140,33 +173,36 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
 
     for (var i = 0; i < dependencies.length; i++) {
       var dependency = dependencies[i];
-      if (
+
+      if (localOnly.hasOwnProperty(dependency)) {
+        ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
+          dependency,
+          topEventMapping[dependency],
+          node,
+        );
+      } else if (dependency === 'topWheel') {
+        if (isEventSupported('wheel')) {
+          ReactBrowserEventEmitter.trapBubbledEvent('topWheel', 'wheel', node);
+        } else if (isEventSupported('mousewheel')) {
+          ReactBrowserEventEmitter.trapBubbledEvent(
+            'topWheel',
+            'mousewheel',
+            node,
+          );
+        } else {
+          // Firefox needs to capture a different mouse scroll event.
+          // @see http://www.quirksmode.org/dom/events/tests/scroll.html
+          ReactBrowserEventEmitter.trapBubbledEvent(
+            'topWheel',
+            'DOMMouseScroll',
+            node,
+          );
+        }
+      } else if (
         !(isListening.hasOwnProperty(dependency) && isListening[dependency])
       ) {
-        if (dependency === 'topWheel') {
-          if (isEventSupported('wheel')) {
-            ReactDOMEventListener.trapBubbledEvent(
-              'topWheel',
-              'wheel',
-              mountAt,
-            );
-          } else if (isEventSupported('mousewheel')) {
-            ReactDOMEventListener.trapBubbledEvent(
-              'topWheel',
-              'mousewheel',
-              mountAt,
-            );
-          } else {
-            // Firefox needs to capture a different mouse scroll event.
-            // @see http://www.quirksmode.org/dom/events/tests/scroll.html
-            ReactDOMEventListener.trapBubbledEvent(
-              'topWheel',
-              'DOMMouseScroll',
-              mountAt,
-            );
-          }
-        } else if (dependency === 'topScroll') {
-          ReactDOMEventListener.trapCapturedEvent(
+        if (dependency === 'topScroll') {
+          ReactBrowserEventEmitter.trapCapturedEvent(
             'topScroll',
             'scroll',
             mountAt,

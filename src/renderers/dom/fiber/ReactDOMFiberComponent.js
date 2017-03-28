@@ -71,43 +71,15 @@ if (__DEV__) {
   };
 }
 
-function ensureListeningTo(rootContainerElement, registrationName) {
-  var isDocumentOrFragment =
-    rootContainerElement.nodeType === DOCUMENT_NODE ||
-    rootContainerElement.nodeType === DOCUMENT_FRAGMENT_NODE;
-  var doc = isDocumentOrFragment
+function getDocument(rootContainerElement) {
+  var isDocumentFragment = rootContainerElement.nodeType === DOC_FRAGMENT_TYPE;
+
+  var doc = isDocumentFragment
     ? rootContainerElement
     : rootContainerElement.ownerDocument;
-  listenTo(registrationName, doc);
-}
 
-// There are so many media events, it makes sense to just
-// maintain a list rather than create a `trapBubbledEvent` for each
-var mediaEvents = {
-  topAbort: 'abort',
-  topCanPlay: 'canplay',
-  topCanPlayThrough: 'canplaythrough',
-  topDurationChange: 'durationchange',
-  topEmptied: 'emptied',
-  topEncrypted: 'encrypted',
-  topEnded: 'ended',
-  topError: 'error',
-  topLoadedData: 'loadeddata',
-  topLoadedMetadata: 'loadedmetadata',
-  topLoadStart: 'loadstart',
-  topPause: 'pause',
-  topPlay: 'play',
-  topPlaying: 'playing',
-  topProgress: 'progress',
-  topRateChange: 'ratechange',
-  topSeeked: 'seeked',
-  topSeeking: 'seeking',
-  topStalled: 'stalled',
-  topSuspend: 'suspend',
-  topTimeUpdate: 'timeupdate',
-  topVolumeChange: 'volumechange',
-  topWaiting: 'waiting',
-};
+  return doc;
+}
 
 function trapClickOnNonInteractiveElement(node: HTMLElement) {
   // Mobile Safari does not fire properly bubble click events on
@@ -122,60 +94,14 @@ function trapClickOnNonInteractiveElement(node: HTMLElement) {
   node.onclick = emptyFunction;
 }
 
-function trapBubbledEventsLocal(node: Element, tag: string) {
-  // If a component renders to null or if another component fatals and causes
-  // the state of the tree to be corrupted, `node` here can be null.
-
-  // TODO: Make sure that we check isMounted before firing any of these events.
-  // TODO: Inline these below since we're calling this from an equivalent
-  // switch statement.
-  switch (tag) {
-    case 'iframe':
-    case 'object':
-      ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node);
-      break;
-    case 'video':
-    case 'audio':
-      // Create listener for each media event
-      for (var event in mediaEvents) {
-        if (mediaEvents.hasOwnProperty(event)) {
-          ReactBrowserEventEmitter.trapBubbledEvent(
-            event,
-            mediaEvents[event],
-            node,
-          );
-        }
-      }
-      break;
-    case 'source':
-      ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node);
-      break;
-    case 'img':
-    case 'image':
-      ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node);
-      ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node);
-      break;
-    case 'form':
-      ReactBrowserEventEmitter.trapBubbledEvent('topReset', 'reset', node);
-      ReactBrowserEventEmitter.trapBubbledEvent('topSubmit', 'submit', node);
-      break;
-    case 'input':
-    case 'select':
-    case 'textarea':
-      ReactBrowserEventEmitter.trapBubbledEvent('topInvalid', 'invalid', node);
-      break;
-    case 'details':
-      ReactBrowserEventEmitter.trapBubbledEvent('topToggle', 'toggle', node);
-      break;
-  }
-}
-
 function setInitialDOMProperties(
   domElement: Element,
   rootContainerElement: Element | Document,
   nextProps: Object,
   isCustomComponentTag: boolean,
 ): void {
+  var doc = getDocument(rootContainerElement);
+
   for (var propKey in nextProps) {
     var nextProp = nextProps[propKey];
     if (!nextProps.hasOwnProperty(propKey)) {
@@ -207,7 +133,7 @@ function setInitialDOMProperties(
       // Noop
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp) {
-        ensureListeningTo(rootContainerElement, propKey);
+        listenTo(propKey, doc, domElement);
       }
     } else if (isCustomComponentTag) {
       DOMPropertyOperations.setValueForAttribute(domElement, propKey, nextProp);
@@ -375,6 +301,7 @@ var ReactDOMFiberComponent = {
     rawProps: Object,
     rootContainerElement: Element | Document,
   ): void {
+    var doc = getDocument(rootContainerElement);
     var isCustomComponentTag = isCustomComponent(tag, rawProps);
     if (__DEV__) {
       validatePropertiesInDevelopment(tag, rawProps);
@@ -401,16 +328,14 @@ var ReactDOMFiberComponent = {
       case 'source':
       case 'video':
       case 'details':
-        trapBubbledEventsLocal(domElement, tag);
         props = rawProps;
         break;
       case 'input':
         ReactDOMFiberInput.mountWrapper(domElement, rawProps);
         props = ReactDOMFiberInput.getHostProps(domElement, rawProps);
-        trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        listenTo('onChange', doc, domElement);
         break;
       case 'option':
         ReactDOMFiberOption.mountWrapper(domElement, rawProps);
@@ -419,18 +344,16 @@ var ReactDOMFiberComponent = {
       case 'select':
         ReactDOMFiberSelect.mountWrapper(domElement, rawProps);
         props = ReactDOMFiberSelect.getHostProps(domElement, rawProps);
-        trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        listenTo('onChange', doc, domElement);
         break;
       case 'textarea':
         ReactDOMFiberTextarea.mountWrapper(domElement, rawProps);
         props = ReactDOMFiberTextarea.getHostProps(domElement, rawProps);
-        trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        listenTo('onChange', doc, domElement);
         break;
       default:
         props = rawProps;
@@ -481,7 +404,7 @@ var ReactDOMFiberComponent = {
     if (__DEV__) {
       validatePropertiesInDevelopment(tag, nextRawProps);
     }
-
+    var doc = getDocument(rootContainerElement);
     var updatePayload: null | Array<any> = null;
 
     var lastProps: Object;
@@ -645,7 +568,7 @@ var ReactDOMFiberComponent = {
       } else if (registrationNameModules.hasOwnProperty(propKey)) {
         if (nextProp) {
           // We eagerly listen to this even though we haven't committed yet.
-          ensureListeningTo(rootContainerElement, propKey);
+          listenTo(propKey, doc, domElement);
         }
         if (!updatePayload && lastProp !== nextProp) {
           // This is a special case. If any listener updates we need to ensure

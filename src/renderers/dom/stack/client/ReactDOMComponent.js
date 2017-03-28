@@ -133,10 +133,7 @@ function assertValidProps(component, props) {
   );
 }
 
-function ensureListeningTo(inst, registrationName, transaction) {
-  if (transaction instanceof ReactServerRenderingTransaction) {
-    return;
-  }
+function getDocument(inst) {
   var containerInfo = inst._hostContainerInfo;
   var isDocumentFragment =
     containerInfo._node &&
@@ -144,16 +141,39 @@ function ensureListeningTo(inst, registrationName, transaction) {
   var doc = isDocumentFragment
     ? containerInfo._node
     : containerInfo._ownerDocument;
-  listenTo(registrationName, doc);
+
+  return doc;
+}
+
+function ensureListeners() {
+  var inst = this;
+
+  var props = inst._currentElement.props;
+  var doc = getDocument(inst);
+  var node = getNode(inst);
+
+  for (var propKey in props) {
+    if (registrationNameModules.hasOwnProperty(propKey)) {
+      if (!!props[propKey]) {
+        listenTo(propKey, doc, node);
+      }
+    }
+  }
 }
 
 function inputPostMount() {
   var inst = this;
+  // For controlled components we always need to ensure we're listening
+  // to onChange. Even if there is no listener.
+  listenTo('onChange', getDocument(inst), getNode(inst));
   ReactDOMInput.postMountWrapper(inst);
 }
 
 function textareaPostMount() {
   var inst = this;
+  // For controlled components we always need to ensure we're listening
+  // to onChange. Even if there is no listener.
+  listenTo('onChange', getDocument(inst), getNode(inst));
   ReactDOMTextarea.postMountWrapper(inst);
 }
 
@@ -198,34 +218,6 @@ if (__DEV__) {
   };
 }
 
-// There are so many media events, it makes sense to just
-// maintain a list rather than create a `trapBubbledEvent` for each
-var mediaEvents = {
-  topAbort: 'abort',
-  topCanPlay: 'canplay',
-  topCanPlayThrough: 'canplaythrough',
-  topDurationChange: 'durationchange',
-  topEmptied: 'emptied',
-  topEncrypted: 'encrypted',
-  topEnded: 'ended',
-  topError: 'error',
-  topLoadedData: 'loadeddata',
-  topLoadedMetadata: 'loadedmetadata',
-  topLoadStart: 'loadstart',
-  topPause: 'pause',
-  topPlay: 'play',
-  topPlaying: 'playing',
-  topProgress: 'progress',
-  topRateChange: 'ratechange',
-  topSeeked: 'seeked',
-  topSeeking: 'seeking',
-  topStalled: 'stalled',
-  topSuspend: 'suspend',
-  topTimeUpdate: 'timeupdate',
-  topVolumeChange: 'volumechange',
-  topWaiting: 'waiting',
-};
-
 function trackInputValue() {
   inputValueTracking.track(this);
 }
@@ -242,74 +234,6 @@ function trapClickOnNonInteractiveElement() {
   // TODO: Only do this for the relevant Safaris maybe?
   var node = getNode(this);
   node.onclick = emptyFunction;
-}
-
-function trapBubbledEventsLocal() {
-  var inst = this;
-  // If a component renders to null or if another component fatals and causes
-  // the state of the tree to be corrupted, `node` here can be null.
-  invariant(inst._rootNodeID, 'Must be mounted to trap events');
-  var node = getNode(inst);
-  invariant(node, 'trapBubbledEvent(...): Requires node to be rendered.');
-
-  switch (inst._tag) {
-    case 'iframe':
-    case 'object':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node),
-      ];
-      break;
-    case 'video':
-    case 'audio':
-      inst._wrapperState.listeners = [];
-      // Create listener for each media event
-      for (var event in mediaEvents) {
-        if (mediaEvents.hasOwnProperty(event)) {
-          inst._wrapperState.listeners.push(
-            ReactBrowserEventEmitter.trapBubbledEvent(
-              event,
-              mediaEvents[event],
-              node,
-            ),
-          );
-        }
-      }
-      break;
-    case 'source':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node),
-      ];
-      break;
-    case 'img':
-    case 'image':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent('topError', 'error', node),
-        ReactBrowserEventEmitter.trapBubbledEvent('topLoad', 'load', node),
-      ];
-      break;
-    case 'form':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent('topReset', 'reset', node),
-        ReactBrowserEventEmitter.trapBubbledEvent('topSubmit', 'submit', node),
-      ];
-      break;
-    case 'input':
-    case 'select':
-    case 'textarea':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent(
-          'topInvalid',
-          'invalid',
-          node,
-        ),
-      ];
-      break;
-    case 'details':
-      inst._wrapperState.listeners = [
-        ReactBrowserEventEmitter.trapBubbledEvent('topToggle', 'toggle', node),
-      ];
-      break;
-  }
 }
 
 function postUpdateSelectWrapper() {
@@ -400,29 +324,10 @@ ReactDOMComponent.Mixin = {
     var props = this._currentElement.props;
 
     switch (this._tag) {
-      case 'audio':
-      case 'form':
-      case 'iframe':
-      case 'img':
-      case 'image':
-      case 'link':
-      case 'object':
-      case 'source':
-      case 'video':
-      case 'details':
-        this._wrapperState = {
-          listeners: null,
-        };
-        transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
-        break;
       case 'input':
         ReactDOMInput.mountWrapper(this, props, hostParent);
         props = ReactDOMInput.getHostProps(this, props);
         transaction.getReactMountReady().enqueue(trackInputValue, this);
-        transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
-        // For controlled components we always need to ensure we're listening
-        // to onChange. Even if there is no listener.
-        ensureListeningTo(this, 'onChange', transaction);
         break;
       case 'option':
         ReactDOMOption.mountWrapper(this, props, hostParent);
@@ -431,19 +336,11 @@ ReactDOMComponent.Mixin = {
       case 'select':
         ReactDOMSelect.mountWrapper(this, props, hostParent);
         props = ReactDOMSelect.getHostProps(this, props);
-        transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
-        // For controlled components we always need to ensure we're listening
-        // to onChange. Even if there is no listener.
-        ensureListeningTo(this, 'onChange', transaction);
         break;
       case 'textarea':
         ReactDOMTextarea.mountWrapper(this, props, hostParent);
         props = ReactDOMTextarea.getHostProps(this, props);
         transaction.getReactMountReady().enqueue(trackInputValue, this);
-        transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
-        // For controlled components we always need to ensure we're listening
-        // to onChange. Even if there is no listener.
-        ensureListeningTo(this, 'onChange', transaction);
         break;
     }
 
@@ -568,6 +465,7 @@ ReactDOMComponent.Mixin = {
         props,
       );
       var tagContent = this._createContentMarkup(transaction, props, context);
+
       if (!tagContent && omittedCloseTags[this._tag]) {
         mountImage = tagOpen + '/>';
       } else {
@@ -593,6 +491,7 @@ ReactDOMComponent.Mixin = {
         }
         break;
       case 'select':
+        transaction.getReactMountReady().enqueue(inputPostMount, this);
         if (props.autoFocus) {
           transaction
             .getReactMountReady()
@@ -646,9 +545,7 @@ ReactDOMComponent.Mixin = {
         continue;
       }
       if (registrationNameModules.hasOwnProperty(propKey)) {
-        if (propValue) {
-          ensureListeningTo(this, propKey, transaction);
-        }
+        continue;
       } else {
         if (propKey === STYLE) {
           if (propValue) {
@@ -687,10 +584,13 @@ ReactDOMComponent.Mixin = {
       return ret;
     }
 
+    transaction.getReactMountReady().enqueue(ensureListeners, this);
+
     if (!this._hostParent) {
       ret += ' ' + DOMPropertyOperations.createMarkupForRoot();
     }
     ret += ' ' + DOMPropertyOperations.createMarkupForID(this._domID);
+
     return ret;
   },
 
@@ -732,6 +632,7 @@ ReactDOMComponent.Mixin = {
         ret = mountImages.join('');
       }
     }
+
     if (newlineEatingTags[this._tag] && ret.charAt(0) === '\n') {
       // text/html ignores the first character in these tags if it's a newline
       // Prefer to break application/xml over text/html (for now) by adding
@@ -852,6 +753,7 @@ ReactDOMComponent.Mixin = {
       transaction,
       isCustomComponentTag,
     );
+
     this._updateDOMChildren(lastProps, nextProps, transaction, context);
 
     switch (this._tag) {
@@ -894,9 +796,11 @@ ReactDOMComponent.Mixin = {
     transaction,
     isCustomComponentTag,
   ) {
+    var doc = getDocument(this);
     var propKey;
     var styleName;
     var styleUpdates;
+
     for (propKey in lastProps) {
       if (
         nextProps.hasOwnProperty(propKey) ||
@@ -914,6 +818,9 @@ ReactDOMComponent.Mixin = {
           }
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) {
+        if (nextProps[propKey]) {
+          listenTo(propKey, doc, getNode(this));
+        }
         // Do nothing for event names.
       } else if (isCustomComponent(this._tag, lastProps)) {
         if (!RESERVED_PROPS.hasOwnProperty(propKey)) {
@@ -926,6 +833,7 @@ ReactDOMComponent.Mixin = {
         DOMPropertyOperations.deleteValueForProperty(getNode(this), propKey);
       }
     }
+
     for (propKey in nextProps) {
       var nextProp = nextProps[propKey];
       var lastProp = lastProps != null ? lastProps[propKey] : undefined;
@@ -968,9 +876,7 @@ ReactDOMComponent.Mixin = {
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) {
-        if (nextProp) {
-          ensureListeningTo(this, propKey, transaction);
-        }
+        // do nothing for event listeners
       } else if (isCustomComponentTag) {
         if (!RESERVED_PROPS.hasOwnProperty(propKey)) {
           DOMPropertyOperations.setValueForAttribute(
@@ -1086,22 +992,6 @@ ReactDOMComponent.Mixin = {
    */
   unmountComponent: function(safely, skipLifecycle) {
     switch (this._tag) {
-      case 'audio':
-      case 'form':
-      case 'iframe':
-      case 'img':
-      case 'image':
-      case 'link':
-      case 'object':
-      case 'source':
-      case 'video':
-        var listeners = this._wrapperState.listeners;
-        if (listeners) {
-          for (var i = 0; i < listeners.length; i++) {
-            listeners[i].remove();
-          }
-        }
-        break;
       case 'input':
       case 'textarea':
         inputValueTracking.stopTracking(this);
