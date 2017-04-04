@@ -145,22 +145,6 @@ function getDocument(inst) {
   return doc;
 }
 
-function ensureListeners() {
-  var inst = this;
-
-  var props = inst._currentElement.props;
-  var doc = getDocument(inst);
-  var node = getNode(inst);
-
-  for (var propKey in props) {
-    if (registrationNameModules.hasOwnProperty(propKey)) {
-      if (!!props[propKey]) {
-        listenTo(propKey, doc, node);
-      }
-    }
-  }
-}
-
 function inputPostMount() {
   var inst = this;
   // For controlled components we always need to ensure we're listening
@@ -465,7 +449,6 @@ ReactDOMComponent.Mixin = {
         props,
       );
       var tagContent = this._createContentMarkup(transaction, props, context);
-
       if (!tagContent && omittedCloseTags[this._tag]) {
         mountImage = tagOpen + '/>';
       } else {
@@ -584,13 +567,10 @@ ReactDOMComponent.Mixin = {
       return ret;
     }
 
-    transaction.getReactMountReady().enqueue(ensureListeners, this);
-
     if (!this._hostParent) {
       ret += ' ' + DOMPropertyOperations.createMarkupForRoot();
     }
     ret += ' ' + DOMPropertyOperations.createMarkupForID(this._domID);
-
     return ret;
   },
 
@@ -753,7 +733,6 @@ ReactDOMComponent.Mixin = {
       transaction,
       isCustomComponentTag,
     );
-
     this._updateDOMChildren(lastProps, nextProps, transaction, context);
 
     switch (this._tag) {
@@ -829,7 +808,6 @@ ReactDOMComponent.Mixin = {
         DOMPropertyOperations.deleteValueForProperty(getNode(this), propKey);
       }
     }
-
     for (propKey in nextProps) {
       var nextProp = nextProps[propKey];
       var lastProp = lastProps != null ? lastProps[propKey] : undefined;
