@@ -756,17 +756,15 @@ describe('ReactDOMComponent', () => {
       };
     });
 
-    // We do not attach DOM listeners when not using create element
     it('should work error event on <source> element', () => {
+      spyOn(console, 'error');
       var container = document.createElement('div');
-      var onError = jest.fn();
-
       ReactDOM.render(
         <video>
           <source
             src="http://example.org/video"
             type="video/mp4"
-            onError={() => onError('onError called')}
+            onError={e => console.error('onError called')}
           />
         </video>,
         container,
@@ -774,10 +772,10 @@ describe('ReactDOMComponent', () => {
 
       var errorEvent = document.createEvent('Event');
       errorEvent.initEvent('error', false, false);
-      container.querySelector('source').dispatchEvent(errorEvent);
+      container.getElementsByTagName('source')[0].dispatchEvent(errorEvent);
 
-      expect(onError).toHaveBeenCalledTimes(1);
-      expect(onError).toHaveBeenCalledWith('onError called');
+      expectDev(console.error.calls.count()).toBe(1);
+      expectDev(console.error.calls.argsFor(0)[0]).toContain('onError called');
     });
 
     it('should not duplicate uppercased selfclosing tags', () => {
@@ -1085,33 +1083,31 @@ describe('ReactDOMComponent', () => {
     });
 
     it('should work load and error events on <image> element in SVG', () => {
-      var onError = jest.fn();
-      var onLoad = jest.fn();
-
+      spyOn(console, 'log');
       var container = document.createElement('div');
       ReactDOM.render(
         <svg>
           <image
             xlinkHref="http://example.org/image"
-            onError={() => onError('onError called')}
-            onLoad={() => onLoad('onLoad called')}
+            onError={e => console.log('onError called')}
+            onLoad={e => console.log('onLoad called')}
           />
         </svg>,
         container,
       );
 
-      var loadEvent = new Event('load');
-      var errorEvent = new Event('error');
-      var image = container.querySelector('image');
+      var loadEvent = document.createEvent('Event');
+      var errorEvent = document.createEvent('Event');
 
-      image.dispatchEvent(errorEvent);
-      image.dispatchEvent(loadEvent);
+      loadEvent.initEvent('load', false, false);
+      errorEvent.initEvent('error', false, false);
 
-      expect(onError).toHaveBeenCalledTimes(1);
-      expect(onError).toHaveBeenCalledWith('onError called');
+      container.getElementsByTagName('image')[0].dispatchEvent(errorEvent);
+      container.getElementsByTagName('image')[0].dispatchEvent(loadEvent);
 
-      expect(onLoad).toHaveBeenCalledTimes(1);
-      expect(onLoad).toHaveBeenCalledWith('onLoad called');
+      expectDev(console.log.calls.count()).toBe(2);
+      expectDev(console.log.calls.argsFor(0)[0]).toContain('onError called');
+      expectDev(console.log.calls.argsFor(1)[0]).toContain('onLoad called');
     });
   });
 

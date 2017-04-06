@@ -15,27 +15,23 @@ describe('ReactDOMIframe', () => {
   var React;
   var ReactDOM;
   var ReactTestUtils;
-  var ReactDOMFeatureFlags;
 
   beforeEach(() => {
     React = require('react');
     ReactDOM = require('react-dom');
     ReactTestUtils = require('ReactTestUtils');
-    ReactDOMFeatureFlags = require('ReactDOMFeatureFlags');
   });
 
   it('should trigger load events', () => {
-    if (ReactDOMFeatureFlags.createElement) {
-      var onLoadSpy = jasmine.createSpy();
-      var iframe = React.createElement('iframe', {onLoad: onLoadSpy});
-      iframe = ReactTestUtils.renderIntoDocument(iframe);
+    var onLoadSpy = jasmine.createSpy();
+    var iframe = React.createElement('iframe', {onLoad: onLoadSpy});
+    iframe = ReactTestUtils.renderIntoDocument(iframe);
 
-      var loadEvent = document.createEvent('Event');
-      loadEvent.initEvent('load', false, false);
+    var loadEvent = document.createEvent('Event');
+    loadEvent.initEvent('load', false, false);
 
-      ReactDOM.findDOMNode(iframe).dispatchEvent(loadEvent);
+    ReactDOM.findDOMNode(iframe).dispatchEvent(loadEvent);
 
-      expect(onLoadSpy).toHaveBeenCalled();
-    }
+    expect(onLoadSpy).toHaveBeenCalled();
   });
 });
