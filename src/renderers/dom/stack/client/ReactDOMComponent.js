@@ -584,12 +584,13 @@ ReactDOMComponent.Mixin = {
       return ret;
     }
 
-    transaction.getReactMountReady().enqueue(ensureListeners, this);
-
     if (!this._hostParent) {
       ret += ' ' + DOMPropertyOperations.createMarkupForRoot();
     }
     ret += ' ' + DOMPropertyOperations.createMarkupForID(this._domID);
+
+    transaction.getReactMountReady().enqueue(ensureListeners, this);
+
     return ret;
   },
 
