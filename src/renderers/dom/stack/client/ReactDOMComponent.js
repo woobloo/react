@@ -474,7 +474,6 @@ ReactDOMComponent.Mixin = {
         }
         break;
       case 'select':
-        transaction.getReactMountReady().enqueue(inputPostMount, this);
         if (props.autoFocus) {
           transaction
             .getReactMountReady()
