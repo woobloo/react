@@ -171,6 +171,13 @@ function inputPostMount() {
   ReactDOMInput.postMountWrapper(inst);
 }
 
+function selectPostMount() {
+  var inst = this;
+  // For controlled components we always need to ensure we're listening
+  // to onChange. Even if there is no listener.
+  listenTo('onChange', getDocument(inst), getNode(inst));
+}
+
 function textareaPostMount() {
   var inst = this;
   // For controlled components we always need to ensure we're listening
@@ -492,6 +499,7 @@ ReactDOMComponent.Mixin = {
         }
         break;
       case 'select':
+        transaction.getReactMountReady().enqueue(selectPostMount, this);
         if (props.autoFocus) {
           transaction
             .getReactMountReady()
