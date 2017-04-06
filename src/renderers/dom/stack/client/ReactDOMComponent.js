@@ -27,9 +27,7 @@ var ReactDOMSelect = require('ReactDOMSelect');
 var ReactDOMTextarea = require('ReactDOMTextarea');
 var ReactInstrumentation = require('ReactInstrumentation');
 var ReactMultiChild = require('ReactMultiChild');
-var ReactServerRenderingTransaction = require('ReactServerRenderingTransaction');
 var {DOCUMENT_FRAGMENT_NODE} = require('HTMLNodeType');
-
 var emptyFunction = require('fbjs/lib/emptyFunction');
 var escapeTextContentForBrowser = require('escapeTextContentForBrowser');
 var inputValueTracking = require('inputValueTracking');
@@ -152,7 +150,7 @@ function ensureListeners() {
 
   for (var propKey in props) {
     if (registrationNameModules.hasOwnProperty(propKey)) {
-      if (!!props[propKey]) {
+      if (props[propKey]) {
         // Note: we access getNode in the loop here for some
         // additional bulletproofing for invalidly nested DOM
         // elements. Invalidly nested elements with event listeners
