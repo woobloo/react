@@ -145,6 +145,24 @@ function getDocument(inst) {
   return doc;
 }
 
+function ensureListeners() {
+  var inst = this;
+  var props = inst._currentElement.props;
+  var doc = getDocument(inst);
+
+  for (var propKey in props) {
+    if (registrationNameModules.hasOwnProperty(propKey)) {
+      if (!!props[propKey]) {
+        // Note: we access getNode in the loop here for some
+        // additional bulletproofing for invalidly nested DOM
+        // elements. Invalidly nested elements with event listeners
+        // will still crash
+        listenTo(propKey, doc, getNode(inst));
+      }
+    }
+  }
+}
+
 function inputPostMount() {
   var inst = this;
   // For controlled components we always need to ensure we're listening
@@ -565,6 +583,8 @@ ReactDOMComponent.Mixin = {
     if (transaction.renderToStaticMarkup) {
       return ret;
     }
+
+    transaction.getReactMountReady().enqueue(ensureListeners, this);
 
     if (!this._hostParent) {
       ret += ' ' + DOMPropertyOperations.createMarkupForRoot();
