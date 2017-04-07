@@ -108,6 +108,8 @@ var localOnly = {
   topWaiting: true,
   topTouchMove: true,
   topTouchStart: true,
+  topTouchCancel: true,
+  topTouchEnd: true,
 };
 
 /**
