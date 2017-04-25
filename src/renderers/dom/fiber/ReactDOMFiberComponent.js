@@ -72,7 +72,8 @@ if (__DEV__) {
 }
 
 function getDocument(rootContainerElement) {
-  var isDocumentFragment = rootContainerElement.nodeType === DOC_FRAGMENT_TYPE;
+  var isDocumentFragment =
+    rootContainerElement.nodeType === DOCUMENT_FRAGMENT_NODE;
 
   var doc = isDocumentFragment
     ? rootContainerElement

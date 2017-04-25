@@ -179,7 +179,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
       if (localOnly.hasOwnProperty(dependency)) {
         ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
           dependency,
-          topEventMapping[dependency],
+          topLevelTypes[dependency],
           node,
         );
       } else if (dependency === 'topWheel') {
