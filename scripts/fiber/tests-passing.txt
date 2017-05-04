@@ -827,6 +827,7 @@ src/renderers/dom/shared/__tests__/ReactDOMComponent-test.js
 * should warn about contentEditable and children
 * should validate against invalid styles
 * should report component containing invalid styles
+* should properly escape text content and attributes values
 * unmounts children before unsetting DOM node info
 * should throw when an invalid tag name is used server-side
 * should throw when an attack vector is used server-side
@@ -1601,6 +1602,7 @@ src/renderers/dom/shared/__tests__/ReactRenderDocument-test.js
 * supports findDOMNode on full-page components
 
 src/renderers/dom/shared/__tests__/ReactServerRendering-test.js
+* should generate simple markup
 * should generate simple markup for self-closing tags
 * should generate simple markup for attribute with `>` symbol
 * should generate comment markup for component returns null
@@ -1608,13 +1610,17 @@ src/renderers/dom/shared/__tests__/ReactServerRendering-test.js
 * should only execute certain lifecycle methods
 * should have the correct mounting behavior
 * should throw with silly args
+* should not put checksum and React ID on components
+* should not put checksum and React ID on text components
 * should not use comments for empty nodes
+* should only execute certain lifecycle methods
 * should throw with silly args
 * allows setState in componentWillMount without using DOM
 * allows setState in componentWillMount with custom constructor
 * renders with props when using custom constructor
 * renders with context when using custom constructor
 * renders components with different batching strategies
+* warns with a no-op when an async setState is triggered
 * warns with a no-op when an async forceUpdate is triggered
 * should warn when children are mutated during render
 
@@ -1894,6 +1900,9 @@ src/renderers/dom/shared/wrappers/__tests__/ReactDOMSelect-test.js
 * should allow switching from multiple
 * should remember value when switching to uncontrolled
 * should remember updated value when switching to uncontrolled
+* should support server-side rendering
+* should support server-side rendering with defaultValue
+* should support server-side rendering with multiple
 * should not control defaultValue if readding options
 * should warn if value is null
 * should refresh state on change
@@ -1911,6 +1920,7 @@ src/renderers/dom/shared/wrappers/__tests__/ReactDOMTextarea-test.js
 * should display `value` of number 0
 * should update defaultValue to empty string
 * should allow setting `value` to `giraffe`
+* should render defaultValue for SSR
 * should render value for SSR
 * should allow setting `value` to `true`
 * should allow setting `value` to `false`
