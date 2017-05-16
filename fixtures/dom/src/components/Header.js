@@ -51,6 +51,7 @@ class Header extends React.Component {
               <option value="/textareas">Textareas</option>
               <option value="/input-change-events">Input change events</option>
               <option value="/buttons">Buttons</option>
+              <option value="/scroll">Scroll</option>
             </select>
           </label>
           <label htmlFor="react_version">
