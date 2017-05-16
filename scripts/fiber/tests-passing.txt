@@ -851,6 +851,7 @@ src/renderers/dom/shared/__tests__/ReactDOMComponent-test.js
 * should suggest property name if available
 * renders innerHTML and preserves whitespace
 * render and then updates innerHTML and preserves whitespace
+* triggers load if onload is not present on an image
 
 src/renderers/dom/shared/__tests__/ReactDOMComponentTree-test.js
 * finds nodes for instances

@@ -78,34 +78,6 @@ var alreadyListeningTo = {};
 var reactTopListenersCounter = 0;
 
 var localOnly = {
-  topAbort: true,
-  topCanPlay: true,
-  topCanPlayThrough: true,
-  topDurationChange: true,
-  topEmptied: true,
-  topEncrypted: true,
-  topEnded: true,
-  topError: true,
-  topInvalid: true,
-  topLoad: true,
-  topLoadedData: true,
-  topLoadedMetadata: true,
-  topLoadStart: true,
-  topPause: true,
-  topPlay: true,
-  topPlaying: true,
-  topProgress: true,
-  topRateChange: true,
-  topReset: true,
-  topSeeked: true,
-  topSeeking: true,
-  topStalled: true,
-  topSubmit: true,
-  topSuspend: true,
-  topTimeUpdate: true,
-  topToggle: true,
-  topVolumeChange: true,
-  topWaiting: true,
   topTouchMove: true,
   topTouchStart: true,
   topTouchCancel: true,
@@ -184,9 +156,13 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
         );
       } else if (dependency === 'topWheel') {
         if (isEventSupported('wheel')) {
-          ReactDOMEventEmitter.trapBubbledEvent('topWheel', 'wheel', node);
+          ReactDOMEventListener.trapBubbledEvent('topWheel', 'wheel', node);
         } else if (isEventSupported('mousewheel')) {
-          ReactDOMEventEmitter.trapBubbledEvent('topWheel', 'mousewheel', node);
+          ReactDOMEventListener.trapBubbledEvent(
+            'topWheel',
+            'mousewheel',
+            node,
+          );
         } else {
           // Firefox needs to capture a different mouse scroll event.
           // @see http://www.quirksmode.org/dom/events/tests/scroll.html
