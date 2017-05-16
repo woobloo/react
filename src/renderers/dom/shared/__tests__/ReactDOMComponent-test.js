@@ -1858,7 +1858,7 @@ describe('ReactDOMComponent', () => {
     });
   });
 
-  describe('Trapping onLoad', () => {
+  describe('Trapping local event listeners', () => {
     it('triggers load if onload is not present on an image', () => {
       return new Promise(function(resolve, reject) {
         const el = ReactTestUtils.renderIntoDocument(
