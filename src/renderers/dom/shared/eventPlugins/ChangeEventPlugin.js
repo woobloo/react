@@ -66,6 +66,10 @@ var activeElementInst = null;
  * SECTION: handle `change` event
  */
 function shouldUseChangeEvent(elem) {
+  if (!elem) {
+    return false;
+  }
+
   var nodeName = elem.nodeName && elem.nodeName.toLowerCase();
   return (
     nodeName === 'select' || (nodeName === 'input' && elem.type === 'file')
@@ -203,6 +207,10 @@ function getTargetInstForInputEventPolyfill(topLevelType, targetInst) {
  * SECTION: handle `click` event
  */
 function shouldUseClickEvent(elem) {
+  if (!elem) {
+    return false;
+  }
+
   // Use the `click` event to detect changes to checkbox and radio inputs.
   // This approach works across all browsers, whereas `change` does not fire
   // until `blur` in IE8.

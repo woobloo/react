@@ -177,7 +177,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
       var dependency = dependencies[i];
 
       if (localOnly.hasOwnProperty(dependency)) {
-        ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
+        ReactDOMEventListener.trapBubbledEvent(
           dependency,
           topLevelTypes[dependency],
           node,
@@ -190,7 +190,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
         } else {
           // Firefox needs to capture a different mouse scroll event.
           // @see http://www.quirksmode.org/dom/events/tests/scroll.html
-          ReactDOMEventEmitter.trapBubbledEvent(
+          ReactDOMEventListener.trapBubbledEvent(
             'topWheel',
             'DOMMouseScroll',
             node,
