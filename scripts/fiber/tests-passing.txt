@@ -745,6 +745,8 @@ src/renderers/dom/shared/__tests__/ReactBrowserEventEmitter-test.js
 * should work with event plugins without dependencies
 * should work with event plugins with dependencies
 * should bubble onTouchTap
+* does not attach a local listener a second time on update
+* does not call old listeners on a second update with a new listener
 
 src/renderers/dom/shared/__tests__/ReactDOM-test.js
 * allows a DOM element to be used with a string
