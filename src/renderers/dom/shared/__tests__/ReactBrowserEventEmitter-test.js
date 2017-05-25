@@ -435,4 +435,54 @@ describe('ReactBrowserEventEmitter', () => {
     expect(idCallOrder[1] === PARENT).toBe(true);
     expect(idCallOrder[2] === GRANDPARENT).toBe(true);
   });
+
+  describe('local listener attachment', function() {
+    it('does not attach a local listener a second time on update', () => {
+      var container = document.createElement('div');
+      var spy = jest.fn();
+
+      class TestComponent extends React.Component {
+        render() {
+          return <div onTouchMove={spy}>Test</div>;
+        }
+      }
+
+      var component = ReactDOM.render(<TestComponent />, container);
+      var el = container.querySelector('div');
+
+      // Force an update to cause a re-render
+      component.forceUpdate();
+
+      ReactTestUtils.SimulateNative.touchMove(el);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call old listeners on a second update with a new listener', () => {
+      var container = document.createElement('div');
+      var a = jest.fn();
+      var b = jest.fn();
+
+      class TestComponent extends React.Component {
+        render() {
+          return <div onTouchMove={this.props.handler}>Test</div>;
+        }
+      }
+
+      ReactDOM.render(<TestComponent handler={a} />, container);
+      let component = ReactDOM.render(<TestComponent handler={b} />, container);
+
+      var el = container.querySelector('div');
+
+      // Force an update to cause a re-render
+      component.forceUpdate();
+
+      ReactTestUtils.SimulateNative.touchMove(el);
+
+      // The first handler should have been torn down
+      expect(a).toHaveBeenCalledTimes(0);
+      // The second handler is now attached
+      expect(b).toHaveBeenCalledTimes(1);
+    });
+  });
 });
