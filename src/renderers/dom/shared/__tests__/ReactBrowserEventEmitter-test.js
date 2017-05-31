@@ -453,7 +453,7 @@ describe('ReactBrowserEventEmitter', () => {
       // Force an update to cause a re-render
       component.forceUpdate();
 
-      ReactTestUtils.SimulateNative.touchMove(el);
+      el.dispatchEvent(new Event('touchmove'));
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -477,7 +477,7 @@ describe('ReactBrowserEventEmitter', () => {
       // Force an update to cause a re-render
       component.forceUpdate();
 
-      ReactTestUtils.SimulateNative.touchMove(el);
+      el.dispatchEvent(new Event('touchmove'));
 
       // The first handler should have been torn down
       expect(a).toHaveBeenCalledTimes(0);

@@ -144,7 +144,7 @@ function ensureListeningTo(inst, registrationName, transaction) {
   var doc = isDocumentFragment
     ? containerInfo._node
     : containerInfo._ownerDocument;
-  listenTo(registrationName, doc);
+  listenTo(registrationName, doc, getNode(inst));
 }
 
 function inputPostMount() {

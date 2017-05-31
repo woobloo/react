@@ -71,13 +71,13 @@ if (__DEV__) {
   };
 }
 
-function ensureListeningTo(rootContainerElement, registrationName) {
+function ensureListeningTo(rootContainerElement, registrationName, node) {
   var isDocumentFragment =
     rootContainerElement.nodeType === DOCUMENT_FRAGMENT_NODE;
   var doc = isDocumentFragment
     ? rootContainerElement
     : rootContainerElement.ownerDocument;
-  listenTo(registrationName, doc);
+  listenTo(registrationName, doc, node);
 }
 
 // There are so many media events, it makes sense to just
@@ -206,7 +206,7 @@ function setInitialDOMProperties(
       // Noop
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp) {
-        ensureListeningTo(rootContainerElement, propKey);
+        ensureListeningTo(rootContainerElement, propKey, domElement);
       }
     } else if (isCustomComponentTag) {
       DOMPropertyOperations.setValueForAttribute(domElement, propKey, nextProp);
@@ -409,7 +409,7 @@ var ReactDOMFiberComponent = {
         trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        ensureListeningTo(rootContainerElement, 'onChange', domElement);
         break;
       case 'option':
         ReactDOMFiberOption.mountWrapper(domElement, rawProps);
@@ -421,7 +421,7 @@ var ReactDOMFiberComponent = {
         trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        ensureListeningTo(rootContainerElement, 'onChange', domElement);
         break;
       case 'textarea':
         ReactDOMFiberTextarea.mountWrapper(domElement, rawProps);
@@ -429,7 +429,7 @@ var ReactDOMFiberComponent = {
         trapBubbledEventsLocal(domElement, tag);
         // For controlled components we always need to ensure we're listening
         // to onChange. Even if there is no listener.
-        ensureListeningTo(rootContainerElement, 'onChange');
+        ensureListeningTo(rootContainerElement, 'onChange', domElement);
         break;
       default:
         props = rawProps;
@@ -644,7 +644,7 @@ var ReactDOMFiberComponent = {
       } else if (registrationNameModules.hasOwnProperty(propKey)) {
         if (nextProp) {
           // We eagerly listen to this even though we haven't committed yet.
-          ensureListeningTo(rootContainerElement, propKey);
+          ensureListeningTo(rootContainerElement, propKey, domElement);
         }
         if (!updatePayload && lastProp !== nextProp) {
           // This is a special case. If any listener updates we need to ensure
