@@ -1722,6 +1722,7 @@ src/renderers/dom/shared/wrappers/__tests__/ReactDOMInput-test.js
 * sets the value attribute on number inputs on blur
 * an uncontrolled number input will not update the value attribute on blur
 * an uncontrolled text input will not update the value attribute on blur
+* an input with an id of `nodeName` works as intended
 
 src/renderers/dom/shared/wrappers/__tests__/ReactDOMOption-test.js
 * should flatten children to a string
