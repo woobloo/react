@@ -1354,7 +1354,7 @@ describe('ReactDOMInput', () => {
       render() {
         return (
           <form onSubmit={spy}>
-            <input id="nodeName" name="nodeName" />
+            <input id="nodeName" name="nodeName" defaultValue="test" />
             <input type="submit" />
           </form>
         );
